@@ -1,5 +1,5 @@
 import streamlit as st
-from PIL import Image, ImageFilter
+from PIL import Image, ImageOps, ImageFilter
 import io
 
 st.title("Aplikasi Pemrosesan Gambar")
@@ -15,16 +15,30 @@ if uploaded_file:
     # Pilihan efek pemrosesan
     option = st.selectbox(
         "Pilih efek gambar:",
-        ["Blur", "Grayscale", "Contour"]
+        ["Rotasi", "Translasi", "Skala", "Distorsi"]
     )
 
     # Terapkan efek
-    if option == "Blur":
-        processed_image = image.filter(ImageFilter.BLUR)
-    elif option == "Grayscale":
-        processed_image = image.convert("L")
-    elif option == "Contour":
-        processed_image = image.filter(ImageFilter.CONTOUR)
+    if option == "Rotasi":
+        angle = st.slider("Pilih Sudut Rotasi", -180, 180, 90)
+        processed_image = image.rotate(angle)
+
+    elif option == "Translasi":
+        # Menambahkan input untuk translasi (pergeseran)
+        x_shift = st.slider("Pergeseran horizontal", -30, 30, 0)
+        y_shift = st.slider("Pergeseran vertikal", -30, 30, 0)
+        processed_image = ImageOps.offset(image, x_shift, y_shift)
+
+    elif option == "Skala":
+        # Mengatur faktor skala
+        scale_factor = st.slider("Faktor Skala", 0.1, 3.0, 1.0)
+        width, height = image.size
+        new_size = (int(width * scale_factor), int(height * scale_factor))
+        processed_image = image.resize(new_size)
+
+    elif option == "Distorsi":
+        # Distorsi menggunakan efek filter
+        processed_image = image.filter(ImageFilter.GaussianBlur(5))
 
     # Tampilkan hasil
     st.image(processed_image, caption="Gambar Diproses", use_column_width=True)
